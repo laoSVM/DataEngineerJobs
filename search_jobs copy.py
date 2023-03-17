@@ -4,92 +4,9 @@ import argparse
 import json
 import requests
 import colorama
-from bs4 import BeautifulSoup
-import re
+from bs4 import BeautifulSoup as soup
 import read_data
 
-class Test:
-
-    def __init__(self, location):
-        self.location = location
-
-    def web_scraper_dep(self):
-        """从 base-search-card__info 获取基本信息, 但是Job ID 在上一个层级无法获取到"""
-        try:
-            response = requests.get(
-                f'https://www.linkedin.com/jobs/search/?keywords={self.location}',
-                timeout=10)
-            response.raise_for_status()
-        except requests.HTTPError as err:
-            print(f'[!!] Something went wrong! {err}')
-            return None
-        # create beautifulsoup
-        soup = BeautifulSoup(response.text, 'html.parser')
-        result_list = []
-        for result in soup.find_all('div', {'class': 'base-search-card__info'}):
-            result_dict = {}
-            result_dict["Job Title"] = result.find('h3', {'class': 'base-search-card__title'}).text.strip()
-            result_dict["Location"] = result.find('span', {'class': 'job-search-card__location'}).text.strip()
-            time_tag = result.find('time', {'class': 'job-search-card__listdate'})
-            time_tag_new = result.find('time', {'class': 'job-search-card__listdate--new'})
-            if time_tag is not None:
-                result_dict["Publish Date"] = time_tag["datetime"]
-            elif time_tag_new is not None:
-                result_dict["Publish Date"] = time_tag_new["datetime"]
-            else:
-                result_dict["Publish Date"] = None
-            result_list.append(result_dict)
-
-        for i in result_list[:5]:
-            print(i,"\n")
-
-        print("Job Finished")
-        return None
-    
-    def web_scraper(self):
-        try:
-            response = requests.get(
-                f'https://www.linkedin.com/jobs/search/?keywords={self.location}',
-                timeout=10)
-            response.raise_for_status()
-        except requests.HTTPError as err:
-            print(f'[!!] Something went wrong! {err}')
-            return None
-        # create beautifulsoup
-        soup = BeautifulSoup(response.text, 'html.parser')
-        search_results = soup.find('ul', {'class': 'jobs-search__results-list'})
-        result_list = []
-        for result in search_results.find_all('li'):
-            result_dict = {}
-            # RE match Job ID
-            url = result.find('a', {'class': 'base-card__full-link'})["href"]
-            match = re.search(r"(\d+)\?", url)
-            # Check if there is a match
-            if match:
-                # print(match.group(1)) # 3529282119
-                result_dict["Job ID"] = match.group(1)
-            else:
-                # Print an error message
-                print("No match found")
-                result_dict["Job ID"] = None
-            
-            result_dict["Job Title"] = result.find('h3', {'class': 'base-search-card__title'}).text.strip()
-            result_dict["Location"] = result.find('span', {'class': 'job-search-card__location'}).text.strip()
-            time_tag = result.find('time', {'class': 'job-search-card__listdate'})
-            time_tag_new = result.find('time', {'class': 'job-search-card__listdate--new'})
-            if time_tag is not None:
-                result_dict["Publish Date"] = time_tag["datetime"]
-            elif time_tag_new is not None:
-                result_dict["Publish Date"] = time_tag_new["datetime"]
-            else:
-                result_dict["Publish Date"] = None
-            result_list.append(result_dict)
-
-        for i in result_list[:5]:
-            print(i,"\n")
-
-        print("Job Finished")
-        return None
 
 class Scrape_Place:
 
@@ -99,19 +16,16 @@ class Scrape_Place:
 
     def web_parsing_location(self):
         try:
-            response = requests.get(
-                f'https://www.linkedin.com/jobs/search/?keywords={self.location}',
-                # f'https://www.linkedin.com/jobs/jobs-in-{self.location}?trk=homepage-basic_intent-module-jobs&position=1&pageNum=0',
-                timeout=10)
-            response.raise_for_status()
+            req = requests.get(
+                f'https://www.linkedin.com/jobs/jobs-in-{self.location}?trk=homepage-basic_intent-module-jobs&position=1&pageNum=0')
+            req.raise_for_status()
 
             # create beautifulsoup
-            soup = BeautifulSoup(response.text, 'html.parser')
-
-            return extract_job_links(soup)
+            page_soup = soup(req.text, 'html.parser')
+            return extract_job_links(page_soup)
         except requests.HTTPError as err:
-            print(f'[!!] Something went wrong! {err}')
-
+            print(colorama.Fore.RED,
+                  f'[!!] Something went wrong! {err}', colorama.Style.RESET_ALL)
 
 
 class Scrape_Profession:
@@ -256,17 +170,68 @@ def get_nums(string):
 
 
 def extract_job_links(cursor):
-    print("Extracting job links")
     job_links = []
+    for res_card in cursor.findAll("li", {"class": "result-card"})[0:]:
+        for links in res_card.findAll('a', {'class': 'result-card__full-card-link'})[0:]:
+            job_links.append(links['href'])
 
-    for res_card in cursor.findAll("ul", {"class": "scaffold-layout__list-container"}):
-        print(res_card)
-        job_links.append(res_card)
-
-    return job_links
-    # return scrape_write(job_links)
+    return scrape_write(job_links)
 
 
 if __name__ == '__main__':
-    # colorama.init()
-    Test("New York").web_scraper()
+    colorama.init()
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description="Find Nearby or Faraway Jobs")
+
+    parser.add_argument("-p", "--place",
+                        nargs='+', metavar='PLACES',
+                        action="store",
+                        help="Enter country/city/state. One or more places to look jobs from."
+                    )
+    
+    parser.add_argument("-j", '--jobfunction',
+                        nargs='+',
+                        metavar='jobfunction',
+                        action='store',
+                        help='Searches Job Specification in your area. (e.g software-engineer)'
+                    )
+
+    parser.add_argument("-jp", '--jobplace',
+                        nargs=2,
+                        metavar=('job', 'place'),
+                        action='store',
+                        help="Searches The Specified Job in the Specified Place. (e.g teacher iowa)"
+                    )
+    args = parser.parse_args()
+
+    if args.place:
+        for place in args.place:
+            folder_name = f'jobs_in_{place.capitalize()}'
+
+            if not os.path.exists(folder_name):
+                os.mkdir(folder_name)
+            Scrape_Place(place).web_parsing_location()
+
+    if args.jobfunction:
+        with requests.get('https://ipinfo.io/') as response:
+            source = response.text
+            response.raise_for_status()
+
+        data = json.loads(source)
+        place = json.dumps(data['city']).replace('"', '')
+
+        for job in args.jobfunction:
+            folder_name = f'{job}_jobs_{place.capitalize()}'
+            if not os.path.exists(folder_name):
+                os.mkdir(folder_name)
+            Scrape_Profession(job, place).profession_current_location()
+
+    if args.jobplace:
+        jp = [jp for jp in args.jobplace]
+        job, place = jp[0], jp[1]
+
+        folder_name = f'{job}_jobs_{place.capitalize()}'
+        if not os.path.exists(folder_name):
+            os.mkdir(folder_name)
+        
+        Profession_Location(job, place).profession_location()

@@ -1,7 +1,7 @@
-import requests
 import os
 import argparse
 import json
+import requests
 
 if __name__ == '__main__':
 
@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     if args.place:
         place = [args.place]
-        
+
         print(place)
 
 
@@ -51,4 +51,3 @@ if __name__ == '__main__':
         jp = [args.jobplace]
         job, place = jp[0], jp[1]
         print(job, '/n', place)
-
