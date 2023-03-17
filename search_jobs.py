@@ -2,10 +2,10 @@ import csv
 import os
 import argparse
 import json
+import re
 import requests
 import colorama
 from bs4 import BeautifulSoup
-import re
 import read_data
 
 class Test:
@@ -45,7 +45,7 @@ class Test:
 
         print("Job Finished")
         return None
-    
+
     def web_scraper(self):
         try:
             response = requests.get(
