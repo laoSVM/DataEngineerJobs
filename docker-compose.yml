@@ -1,0 +1,28 @@
+version: '1.1'
+
+services:
+  pgdatabase:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=jobs_database
+    volumes:
+      - postgres_data:/var/lib/postgresql/data:rw
+    ports:
+      - "5432:5432"
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+      - PGADMIN_CONFIG_PROXY_X_HOST_COUNT=1
+      - PGADMIN_CONFIG_PROXY_X_PREFIX_COUNT=1
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "8080:80"
+
+volumes:
+    postgres_data:
+    pgadmin_data:
