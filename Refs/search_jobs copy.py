@@ -5,7 +5,7 @@ import json
 import requests
 import colorama
 from bs4 import BeautifulSoup as soup
-import read_data
+import Refs.read_data as read_data
 
 
 class Scrape_Place:

@@ -206,11 +206,7 @@ class Scraper:
         soup = BeautifulSoup(html, "html.parser")
 
         result_list = []
-        progress_bar = 0
         for result in soup.find_all("li"):
-            print(f"Searching jobs offset:{progress_bar}")
-            progress_bar += 1
-
             result_dict = {}
             # RE match Job ID
             url = result.find("h3", {"class": "base-search-card__title"}).find_previous(
@@ -292,5 +288,3 @@ if __name__ == "__main__":
     location = args.location
     profession = args.profession
     print(f"Searching for: Location: {location}, Profession: {profession}")
-
-    Test(location, profession).web_scraper()
