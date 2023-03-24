@@ -288,3 +288,4 @@ if __name__ == "__main__":
     location = args.location
     profession = args.profession
     print(f"Searching for: Location: {location}, Profession: {profession}")
+    
