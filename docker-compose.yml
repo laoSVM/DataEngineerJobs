@@ -1,4 +1,4 @@
-version: '1.1'
+version: '3'
 
 services:
   pgdatabase:
@@ -36,7 +36,8 @@ services:
       - MB_DB_PORT=5432
       - MB_DB_USER=root
       - MB_DB_PASS=root
-      - MB_DB_HOST=localhost
+      # - MB_DB_HOST=pgdatabase
+    # restart: always
     tty: true
 
 volumes:
