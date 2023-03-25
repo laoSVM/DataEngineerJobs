@@ -10,10 +10,10 @@ def extract_data(location: str):
 
     return df
 
-def transform_data(df):
-    print(f"pre: missing passenger count: {df['passenger_count'].isin([0]).sum()}")
-    df = df[df['passenger_count'] != 0]
-    print(f"post: missing passenger count: {df['passenger_count'].isin([0]).sum()}")
+def transform_data(df: pd.DataFrame, profession: str):
+    df['Search Term'] = profession
+    df['Publish Date'] = pd.to_datetime(df['Publish Date'])
+
     return df
 
 def load_data(user, password, host, port, db, table_name, df):
@@ -22,7 +22,7 @@ def load_data(user, password, host, port, db, table_name, df):
     engine = create_engine(postgres_url)
 
     inspector = inspect(engine)
-    if not inspector.has_table('table_name'):
+    if not inspector.has_table(f'{table_name}'):
         print(f'Table does not exist, creating table {table_name}')
         df.head(n=0).to_sql(name=table_name, con=engine, if_exists='replace')
 

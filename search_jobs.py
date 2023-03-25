@@ -201,7 +201,7 @@ class Scraper:
         print(f"Source code saved to {destination}")
 
     def search_results_parsing(self, html: str) -> list:
-        """Parse the search results from response.text, and return a list of job info dict"""
+        """Parse search results from response.text | return a list of job info dict"""
         # create beautifulsoup
         soup = BeautifulSoup(html, "html.parser")
 
@@ -251,7 +251,7 @@ class Scraper:
                 result_dict["Publish Date"] = time_tag_new["datetime"]
             else:
                 result_dict["Publish Date"] = None
-
+            
             result_list.append(result_dict)
 
         return result_list
@@ -279,13 +279,22 @@ class Scraper:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-l", "--location", type=str, required=False, default="New York"
+        "-l",
+        "--location",
+        type=str,
+        required=False,
+        default="New York",
+        help='Job search location. (e.g "New York")',
     )
     parser.add_argument(
-        "-p", "--profession", type=str, required=False, default="Data Engineer"
+        "-p",
+        "--profession",
+        type=str,
+        required=False,
+        default="Data Engineer",
+        help='Job Title. (e.g "Data Engineer")',
     )
     args = parser.parse_args()
     location = args.location
     profession = args.profession
     print(f"Searching for: Location: {location}, Profession: {profession}")
-    
