@@ -40,12 +40,13 @@ services:
     volumes:
       - metabase-data:/metabase-data
     environment:
-      - MB_DB_TYPE=postgres
-      - MB_DB_DBNAME=metabase-data # for metabase to store it's data
-      - MB_DB_PORT=5432
-      - MB_DB_USER=root
-      - MB_DB_PASS=root
-      - MB_DB_HOST=pgdatabase
+    # for metabase to store application data, default to JAVA H2 database named metabase.db
+      # - MB_DB_TYPE=postgres
+      # - MB_DB_DBNAME=metabase-data 
+      # - MB_DB_PORT=5432
+      # - MB_DB_USER=root
+      # - MB_DB_PASS=root
+      # - MB_DB_HOST=pgdatabase
     restart: on-failure
     # tty: true
 

@@ -34,6 +34,12 @@ def scrape_jobs(
 
     return job_postings
 
+def unit_test(location="New York", profession="Data Engineer", end=100):
+    jobs = scrape_jobs(location=location, profession=profession, end=end)
+    jobs = pd.DataFrame(jobs)
+    df = search_result_cleaning(jobs, args.profession)
+    return df.head(1)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -56,16 +62,17 @@ if __name__ == "__main__":
     # location = args.location
     # profession = args.profession
     print(f"Searching for: Location: {args.location}, Profession: {args.profession}")
-    jobs = scrape_jobs(location=args.location, profession=args.profession, end=50)
-    jobs = pd.DataFrame(jobs)
-    df = transform_data(jobs, args.profession)
-    load_data(
-        user = "root",
-        password = "root",
-        host = "localhost",
-        port = "5432",
-        db = "jobs_database",
-        table_name = "job_search_results",
-        df = df
-        )
-    print(f"Data loaded successfully!")
+    # jobs = scrape_jobs(location=args.location, profession=args.profession, end=50)
+    # jobs = pd.DataFrame(jobs)
+    # df = search_result_cleaning(jobs, args.profession)
+    # load_data(
+    #     user = "root",
+    #     password = "root",
+    #     host = "localhost",
+    #     port = "5432",
+    #     db = "jobs_database",
+    #     table_name = "job_search_results",
+    #     df = df
+    #     )
+    df = unit_test(args.location, args.profession, end=25)
+    # print(df)

@@ -10,14 +10,16 @@ def extract_data(location: str):
 
     return df
 
-def transform_data(df: pd.DataFrame, profession: str):
+def search_result_cleaning(df: pd.DataFrame, profession: str):
+    """return cleaned dataframe with Job Id as index"""
+    df.drop_duplicates(subset="Job ID", inplace=True)
     df['Search Term'] = profession
     df['Publish Date'] = pd.to_datetime(df['Publish Date'])
 
-    return df
+    return df.set_index("Job ID") # set index is needed to avoid creating index column in postgresql
 
 def load_data(user, password, host, port, db, table_name, df):
-
+    """load data into postgresql"""
     postgres_url = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}'
     engine = create_engine(postgres_url)
 
@@ -31,7 +33,7 @@ def load_data(user, password, host, port, db, table_name, df):
 
 if __name__ == '__main__':
 
-    df = extract_data("jobs.csv")
+    df_extracted = extract_data("jobs.csv")
     load_data(
         user = "root",
         password = "root",
@@ -39,5 +41,5 @@ if __name__ == '__main__':
         port = "5432",
         db = "jobs_database",
         table_name = "job_search_results",
-        df = df
+        df = df_extracted
         )
