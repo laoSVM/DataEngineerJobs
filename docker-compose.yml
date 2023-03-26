@@ -1,4 +1,13 @@
-version: '3'
+version: '3.7'
+
+networks:
+  default:
+    name: jobs-network
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  metabase-data:
 
 services:
   pgdatabase:
@@ -32,15 +41,11 @@ services:
       - metabase-data:/metabase-data
     environment:
       - MB_DB_TYPE=postgres
-      - MB_DB_DBNAME=metabase
+      - MB_DB_DBNAME=metabase-data # for metabase to store it's data
       - MB_DB_PORT=5432
       - MB_DB_USER=root
       - MB_DB_PASS=root
-      # - MB_DB_HOST=pgdatabase
-    # restart: always
-    tty: true
+      - MB_DB_HOST=pgdatabase
+    restart: on-failure
+    # tty: true
 
-volumes:
-    postgres_data:
-    pgadmin_data:
-    metabase-data:
