@@ -39,7 +39,7 @@ services:
       - "3000:3000"
     volumes:
       - metabase-data:/metabase-data
-    environment:
+    # environment:
     # for metabase to store application data, default to JAVA H2 database named metabase.db
       # - MB_DB_TYPE=postgres
       # - MB_DB_DBNAME=metabase-data 

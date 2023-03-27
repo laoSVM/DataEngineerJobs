@@ -14,8 +14,7 @@ def scrape_jobs(
     job_postings = []
     while start < end:
         time.sleep(randint(0, 5) * 1)
-        print(f"Testing {start}")
-
+        # print(f"Testing {start}")
         try:
             url = (
                 f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search/?keywords={profession}"
@@ -62,17 +61,18 @@ if __name__ == "__main__":
     # location = args.location
     # profession = args.profession
     print(f"Searching for: Location: {args.location}, Profession: {args.profession}")
-    # jobs = scrape_jobs(location=args.location, profession=args.profession, end=50)
-    # jobs = pd.DataFrame(jobs)
-    # df = search_result_cleaning(jobs, args.profession)
-    # load_data(
-    #     user = "root",
-    #     password = "root",
-    #     host = "localhost",
-    #     port = "5432",
-    #     db = "jobs_database",
-    #     table_name = "job_search_results",
-    #     df = df
-    #     )
-    df = unit_test(args.location, args.profession, end=25)
+    jobs = scrape_jobs(location=args.location, profession=args.profession, end=50)
+    jobs = pd.DataFrame(jobs)
+    df = search_result_cleaning(jobs, args.profession)
+    df = change_data_capture(df)
+    load_data(
+        user = "root",
+        password = "root",
+        host = "localhost",
+        port = "5432",
+        db = "jobs_database",
+        table_name = "job_search_results",
+        df = df
+        )
+    # df = unit_test(args.location, args.profession, end=25)
     # print(df)
