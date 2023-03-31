@@ -33,12 +33,10 @@ def change_data_capture(
     postgres_url = "postgresql+psycopg2://root:root@localhost:5432/jobs_database"
     engine = create_engine(postgres_url)
     existing_jobs = pd.read_sql(
-        text(f'SELECT "{primary_key}" FROM "{table_name}"'), engine.connect()
+        text(f'SELECT "{primary_key}", 1 as "exist" FROM "{table_name}"'), engine.connect()
     )
 
-    delta_index = df.join(existing_jobs, on="Job ID", how="left", rsuffix="_right")[
-        f"{primary_key}_right"
-    ].isna()
+    delta_index = pd.merge(df, existing_jobs, on=primary_key, how="left", suffixes=("_left","_right"))["exist"].isna()
     print(f"Number of new records: {delta_index.sum()}")
 
     delta_df = df[delta_index]
