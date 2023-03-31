@@ -251,13 +251,21 @@ class Scraper:
                 result_dict["Publish Date"] = time_tag_new["datetime"]
             else:
                 result_dict["Publish Date"] = None
-            
+
             result_list.append(result_dict)
 
         return result_list
 
     def jd_parsing(self, html: str) -> dict:
-        """Parse the jd page from response.text, and return a jd dict"""
+        """
+        Parse the jd page from response.text, and return a jd dict
+        {
+            "Seniority level": value,
+            "Employment type": Full-time,
+            "Job function": IT,
+            "Industries": "Technology, Information and Internet"
+        }
+        """
         soup = BeautifulSoup(html, "html.parser")
 
         job_description = soup.find("div", {"class": "description__text"}).text.strip()
@@ -267,13 +275,17 @@ class Scraper:
         for criteria in criteria_list.find_all("li"):
             subheader = criteria.find(
                 "h3", {"class": "description__job-criteria-subheader"}
-            ).text.strip()
+            ).text.strip().lower()
             value = criteria.find(
                 "span", {"class": "description__job-criteria-text"}
             ).text.strip()
             result_dict[subheader] = value
-        result_dict["job_description"] = job_description[: job_description.find("\n")]
+        result_dict["job description"] = job_description[: job_description.find("\n")]
         return result_dict
+
+    def jd_json(self, html: str) -> dict:
+        soup = BeautifulSoup(html, "html.parser")
+        return soup.find("script").attrs
 
 
 if __name__ == "__main__":
